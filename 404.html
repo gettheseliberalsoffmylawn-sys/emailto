@@ -41,13 +41,6 @@
   <div class="box">
     <h1>Opening email...</h1>
     <p id="message">Please wait.</p>
-    <p id="fallback" style="display: none;">
-      Your email app didn't open.
-      <br>
-      <a id="emailLink" href="#">Click here to open it.</a>
-      <br><br>
-      <a id="gmailLink" href="#" target="_blank">Open in Gmail instead.</a>
-    </p>
   </div>
 
   <script>
@@ -67,33 +60,40 @@
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const message = document.getElementById("message");
-    const fallback = document.getElementById("fallback");
-    const emailLink = document.getElementById("emailLink");
-    const gmailLink = document.getElementById("gmailLink");
 
     if (email && emailRegex.test(email)) {
 
-      // Create the mailto URL
+      // Try the normal email app first
       const mailto = "mailto:" + email;
 
-      // Create Gmail web URL
+      // Gmail fallback
       const gmail =
         "https://mail.google.com/mail/?view=cm&fs=1&to=" +
         encodeURIComponent(email);
 
-      // Set fallback links
-      emailLink.href = mailto;
-      gmailLink.href = gmail;
-
-      // Try to open the user's email application
+      // Attempt to open the email app
       window.location.href = mailto;
 
-      // Show fallback after a short delay
+      // If we're still on this page after 2 seconds,
+      // attempt to open Gmail.
       setTimeout(() => {
-        fallback.style.display = "block";
-        message.textContent =
-          "If your email app didn't open, use one of the options below.";
-      }, 1500);
+
+        message.textContent = "Opening Gmail...";
+
+        const gmailWindow = window.open(gmail, "_self");
+
+        // If the browser refuses the Gmail navigation,
+        // show an error after another 3 seconds.
+        setTimeout(() => {
+          if (!document.hidden) {
+            document.getElementById("message").innerHTML =
+              "Unable to open your email.<br><br>" +
+              "Please open Gmail manually and email:<br>" +
+              "<strong>" + email + "</strong>";
+          }
+        }, 3000);
+
+      }, 2000);
 
     } else {
 
