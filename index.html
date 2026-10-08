@@ -45,12 +45,14 @@
       Your email app didn't open.
       <br>
       <a id="emailLink" href="#">Click here to open it.</a>
+      <br><br>
+      <a id="gmailLink" href="#" target="_blank">Open in Gmail instead.</a>
     </p>
   </div>
 
   <script>
-    // Get everything after the first "/" in the URL
-    const path = window.location.pathname.substring(8);
+    // Get everything after /emailto/
+    const path = window.location.pathname.substring(9);
 
     // Decode things like %40 → @
     let email;
@@ -67,14 +69,21 @@
     const message = document.getElementById("message");
     const fallback = document.getElementById("fallback");
     const emailLink = document.getElementById("emailLink");
+    const gmailLink = document.getElementById("gmailLink");
 
     if (email && emailRegex.test(email)) {
 
       // Create the mailto URL
       const mailto = "mailto:" + email;
 
-      // Set fallback link
+      // Create Gmail web URL
+      const gmail =
+        "https://mail.google.com/mail/?view=cm&fs=1&to=" +
+        encodeURIComponent(email);
+
+      // Set fallback links
       emailLink.href = mailto;
+      gmailLink.href = gmail;
 
       // Try to open the user's email application
       window.location.href = mailto;
@@ -82,7 +91,8 @@
       // Show fallback after a short delay
       setTimeout(() => {
         fallback.style.display = "block";
-        message.textContent = "If your email app didn't open, use the link below.";
+        message.textContent =
+          "If your email app didn't open, use one of the options below.";
       }, 1500);
 
     } else {
